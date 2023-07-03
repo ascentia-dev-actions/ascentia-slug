@@ -1,0 +1,18 @@
+runs:
+  using: 'composite'
+  steps:
+    - if: env.GITHUB_ASCENTIA_SLUG_APPLIED != 'true'
+      uses: ascentia-dev-actions/github-slug-action@v4.x
+    - if: env.GITHUB_ASCENTIA_SLUG_APPLIED != 'true'
+      run: |
+        build_tag="$GITHUB_REF_SLUG"
+        # blacklist environment names to prevent mistakes
+        case "$build_tag" in
+        test | testing | qa | stag | stage | staging | prod | production)
+          build_tag="x-${build_tag}"
+          ;;
+        esac
+        # export
+        echo "GITHUB_BUILD_TAG=${build_tag}" >>"$GITHUB_ENV"
+        echo "GITHUB_ASCENTIA_SLUG_APPLIED=true" >>"$GITHUB_ENV"
+      shell: bash
